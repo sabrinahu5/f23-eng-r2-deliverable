@@ -28,24 +28,23 @@ type Species = Database["public"]["Tables"]["species"]["Row"];
 const kingdoms = z.enum(["Animalia", "Plantae", "Fungi", "Protista", "Archaea", "Bacteria"]);
 
 const speciesSchema = z.object({
-  common_name: z.union([
+  common_name:
     z.string()
     .nullable()
     // Transform empty string or only whitespace input to null before form submission
-    .transform((val) => (val?.trim() === "" ? null : val?.trim()))]).optional(),
-  description: z.union([
+    .transform((val) => (val?.trim() === "" ? null : val?.trim())).optional(),
+  description:
     z.string()
     .nullable()
-    .transform((val) => (val?.trim() === "" ? null : val?.trim()))]).optional(),
+    .transform((val) => (val?.trim() === "" ? null : val?.trim())).optional(),
   kingdom: kingdoms,
-  scientific_name: z.union([
+  scientific_name:
     z.string()
     .trim()
     .min(1)
-    .transform((val) => val?.trim())]).optional(),
+    .transform((val) => val?.trim()).optional(),
   total_population: z.number().int().positive().min(1).optional(),
-  image: z
-    .string()
+  image: z.string()
     .url()
     .nullable()
     .transform((val) => val?.trim()).optional(),
