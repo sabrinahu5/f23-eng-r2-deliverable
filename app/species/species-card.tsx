@@ -28,27 +28,27 @@ type Species = Database["public"]["Tables"]["species"]["Row"];
 const kingdoms = z.enum(["Animalia", "Plantae", "Fungi", "Protista", "Archaea", "Bacteria"]);
 
 const speciesSchema = z.object({
-  common_name: z
-    .string()
+  common_name: z.union([
+    z.string()
     .nullable()
     // Transform empty string or only whitespace input to null before form submission
-    .transform((val) => (val?.trim() === "" ? null : val?.trim())),
-  description: z
-    .string()
+    .transform((val) => (val?.trim() === "" ? null : val?.trim()))]).optional(),
+  description: z.union([
+    z.string()
     .nullable()
-    .transform((val) => (val?.trim() === "" ? null : val?.trim())),
+    .transform((val) => (val?.trim() === "" ? null : val?.trim()))]).optional(),
   kingdom: kingdoms,
-  scientific_name: z
-    .string()
+  scientific_name: z.union([
+    z.string()
     .trim()
     .min(1)
-    .transform((val) => val?.trim()),
+    .transform((val) => val?.trim())]).optional(),
   total_population: z.number().int().positive().min(1).optional(),
   image: z
     .string()
     .url()
     .nullable()
-    .transform((val) => val?.trim()),
+    .transform((val) => val?.trim()).optional(),
 });
 
 type FormData = z.infer<typeof speciesSchema>;
@@ -132,7 +132,7 @@ export default function SpeciesCard(props) {
         </DialogContent>
       </Dialog>
       {canEdit && (
-         <Dialog editOpen={editOpen} onOpenChange={setEditOpen}>
+         <Dialog open={editOpen} onOpenChange={setEditOpen}>
          <DialogTrigger asChild>
            <Button
              className="mt-3 w-full"
@@ -159,7 +159,7 @@ export default function SpeciesCard(props) {
                   <FormItem>
                     <FormLabel>Scientific Name</FormLabel>
                     <FormControl>
-                      <Input placeholder={species.scientific_name} {...field} />
+                      <Input defaultValue={species.scientific_name} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -175,7 +175,7 @@ export default function SpeciesCard(props) {
                     <FormItem>
                       <FormLabel>Common Name</FormLabel>
                       <FormControl>
-                        <Input value={value ?? ""} placeholder={species.common_name} {...rest} />
+                        <Input defaultValue={species.common_name ?? ""} placeholder={species.common_name} {...rest} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -192,7 +192,7 @@ export default function SpeciesCard(props) {
                     <Select onValueChange={(value) => field.onChange(kingdoms.parse(value))} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={species.kingdom} />
+                          <SelectValue defaultValue={species.kingdom} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -219,7 +219,7 @@ export default function SpeciesCard(props) {
                       {/* Using shadcn/ui form with number: https://github.com/shadcn-ui/ui/issues/421 */}
                       <Input
                         type="number"
-                        placeholder={species.population}
+                        defaultValue={species.total_population}
                         {...field}
                         onChange={(event) => field.onChange(+event.target.value)}
                       />
@@ -236,7 +236,7 @@ export default function SpeciesCard(props) {
                     <FormLabel>Image URL</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder={species.image}
+                        defaultValue={species.image}
                         {...field}
                       />
                     </FormControl>
@@ -255,8 +255,7 @@ export default function SpeciesCard(props) {
                       <FormLabel>Description</FormLabel>
                       <FormControl>
                         <Textarea
-                          value={value ?? ""}
-                          placeholder={species.description}
+                          defaultValue={species.description ?? ""}
                           {...rest}
                         />
                       </FormControl>
