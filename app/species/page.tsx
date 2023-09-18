@@ -18,7 +18,6 @@ export default async function SpeciesList() {
   }
 
   const { data: species } = await supabase.from("species").select("*");
-
   return (
     <>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
@@ -26,8 +25,9 @@ export default async function SpeciesList() {
         <AddSpeciesDialog key={new Date().getTime()} userId={session.user.id} />
       </div>
       <Separator className="my-4" />
+
       <div className="flex flex-wrap justify-center">
-        {species?.map((species) => <SpeciesCard key={species.id} {...species} userId={session.user.id} />)}
+        {species?.map((species) => <SpeciesCard key={`${species.id}`} userId={session.user.id} {...species} />)}
       </div>
     </>
   );
